@@ -1,0 +1,145 @@
+{% extends 'layout/base.html' %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<!-- SignUp Section Start -->
+	<section class="login">
+		<div class="container">
+			<div class="row">
+				<div class="col-sm-7 col-lg-6 mx-auto rounded-3 border p-5">
+					<div>
+						<h2>Sign Up</h2>
+					</div>
+					{% with messages = get_flashed_messages() %}
+							{% if messages %}
+								{% for message in messages %}
+									<p class="text-danger fs-5">{{ message }}</p>
+							{% endfor %}
+							{% endif %}
+							{% endwith %}
+					<form action="{{url_for('register')}}" method="post" id="registerForm" class="row">
+					
+						<div class="mb-4 col-sm-6">
+							<label for="fname" class="fs-4">First Name</label>
+							<input type="text" class="form-control fs-4 py-3" name="fname" id="fname" placeholder="First Name">
+						</div>
+						
+						<div class="mb-4 col-sm-6">
+							<label for="lname" class="fs-4">Last Name</label>
+							<input type="text" class="form-control fs-4 py-3" name="lname" id="lname" placeholder="Last Name">
+						</div>
+						
+						<div class="mb-4">
+							<label for="dob" class="fs-4">Date of Birth</label>
+							<input type="date" class="form-control fs-4 py-3" name="dob" id="dob">
+						</div>
+						
+						<div class="mb-4">
+						<label for="role" class="fs-4">Role</label>
+						<select name="role" class="form-select fs-4 py-3" id="role">
+		<option value="student">Student</option>
+		<option value="parent">Parent</option>
+		<option value="teacher">Teacher</option>
+		<option value="other">Other</option>
+	</select>
+	</div>
+	
+	<div class="mb-4">
+							<label for="email" class="fs-4">Email</label>
+							<input type="text" class="form-control fs-4 py-3" name="email" id="email" placeholder="johndoe@gmail.com">
+						</div>
+					
+						<div class="mb-4">
+							<input type="password" class="form-control fs-4 py-3" name="password" id="password"
+								placeholder="Password">
+						</div>
+						<div class="mb-4">
+							<input type="password" class="form-control fs-4 py-3" id="c_password"
+								placeholder="Confirm Password">
+						</div>
+
+						<input type="submit" class="btn al-btn w-100 my-4 mx-auto" value="Sign Up">
+
+						<div class="mb-4 text-center my-5">
+							<p class="line-heading my-5  text-muted">Already Have Account?</p>
+							<a href="{{ url_for('login') }}" class="btn al-btn al-btn-light">Log In</a>
+						</div>
+					</form>
+				</div>
+			</div>
+	</section>
+	<!-- SignUp Section End -->
+{% endblock %}
+
+{% block js %}
+<script>
+        $(document).ready(function() {
+            $('form').on('submit', function(event) {
+                // Prevent form submission
+                event.preventDefault();
+
+                // Clear previous error messages
+                $('.input-error').remove();
+
+                // Validate form fields
+                var isValid = true;
+
+                // Check if all fields are filled
+                $('input').each(function() {
+                    if ($(this).val() === '') {
+                        isValid = false;
+                        $(this).after('<span class="text-danger fs-5 input-error">This field is required.</span>');
+                    }
+                });
+
+                // Validate email format
+                var email = $('#email').val();
+                var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailPattern.test(email)) {
+                    isValid = false;
+                    $('#email').after('<span class="text-danger fs-5 input-error">Please enter a valid email address.</span>');
+                }
+
+                // Check if passwords match
+                var password = $('#password').val();
+                var c_password = $('#c_password').val();
+                if (password !== c_password) {
+                    isValid = false;
+                    $('#c_password').after('<span class="text-danger fs-5 input-error">Passwords do not match.</span>');
+                }
+
+                // If all validations pass, submit the form
+                if (isValid) {
+                    this.submit();
+                }
+            });
+			
+			
+			// email address exist validations
+			$('#email').on('focusout',function(e){
+				var email = $(this).val();
+					$.ajax({
+						url: "{{ url_for('email_validation') }}",
+						method: 'GET',
+						data: { email: email },
+						success: function(result) {
+							if(result.valid) {
+								$('.input-error').remove();
+								$('input[type="submit"]').prop('disabled', false);
+							} else {
+							event.preventDefault();
+							$('.input-error').remove();
+								$('#email').after('<span class="text-danger fs-5 input-error">This email is already registered in our database. Please enter another one.</span>');
+								$('input[type="submit"]').prop("disabled",true);
+							}
+						},
+						error: function(xhr, status, error) {
+							alert("An error occurred: " + error);
+						}
+					});
+				});
+        });
+    </script>
+
+{% endblock %}

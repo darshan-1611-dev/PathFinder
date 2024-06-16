@@ -1,0 +1,66 @@
+<!-- Navbar Section Start -->
+    <header id="main-nav">
+        <div class="header">
+            <div class="container-fluid">
+                <nav class="navbar navbar-expand-lg">
+                    <a class="navbar-brand" href="/">
+                        <img src="{{ url_for('static', filename='images/logo-black-svg.svg') }}" alt="logo" class="">
+                    </a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <i class="fas fa-stream"></i>
+                    </button>
+                    <div class="collapse navbar-collapse mt-4 mt-lg-0" id="navbarNav">
+                        <ul class="navbar-nav mx-auto">
+                            <li class="nav-item">
+                                <a class="nav-link active" aria-current="page" href="/">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{url_for('map') }}">Map
+                                </a>
+                            </li>
+                        </ul>
+						
+{% if not session['logged_in'] %}
+                        <div class="nav-right">
+                            <div class="text-lg-end">
+                                <hr class="d-lg-none">
+                                <ul class="navbar-nav">
+                                    <li class="nav-item">
+                                        <a href="{{url_for('login')}}" class="nav-link">Log In</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="{{url_for('register')}}" class="nav-link">Sign
+                                            Up</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+						{% else %}
+						<div class="nav-right ">
+                            <div class="text-lg-end">
+							<hr class="d-lg-none">
+                                <div class="login-user pe-lg-5">
+                                    <button style="background-color: transparent; border: none;"
+                                        onclick="toggleUserMenu()"><img src="
+										{{ url_for('static', filename='images/user-icon.png') }}"
+                                            alt="user_img" class="login-user-img">Welcome {{ session['user_name'] }}!</button>
+                                </div>
+                            </div>
+                        </div>
+						{% endif %}
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </header>
+	
+	{% if session['logged_in'] %}
+	<div class="user-menu-toggler shadow-lg" style="display: none;">
+        <ul>
+            <li><a href="{{url_for('user_profile')}}">Profile</a></li>
+            <li><a href="{{url_for('logout')}}">Logout</a></li>
+        </ul>
+    </div> 
+	{% endif %}
+<!-- Navbar Section End -->

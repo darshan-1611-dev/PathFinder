@@ -1,0 +1,410 @@
+{% extends 'layout/base.html' %}
+
+{% block title %}Explore Map{% endblock %}
+
+{% block css %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/map.css') }}">
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+	 
+	 
+<style>
+#map { height: 500px; }
+
+    /* Styles for the popup table */
+.popup-table {
+    width: 100%;
+    max-height: 300px; 
+    overflow-y: auto; 
+    border-collapse: collapse; 
+}
+
+.popup-table th,
+.popup-table td {
+    padding: 10px; /* Add padding for better spacing */
+    text-align: left; /* Align text to the left */
+    border-bottom: 1px solid #ddd; /* Add a bottom border */
+}
+
+.popup-table th {
+    background-color: #f2f2f2; /* Light grey background for table headers */
+    top: 0; /* Position at the top */
+}
+
+.popup-table tr:hover {
+    background-color: #f1f1f1; /* Light grey background on hover */
+}
+
+.popup-table-container {
+    width: 100%; /* Full width of the container */
+    max-height: 300px; /* Set the maximum height for the container */
+    overflow-y: auto; /* Enable vertical scrolling */
+    border: 1px solid #ddd; /* Add a border around the container */
+    padding: 10px; /* Add padding for better spacing */
+}
+
+.popup-table-container td,.popup-table-container th{
+font-size:15px !important;
+}
+
+#main-nav,.header,.navbar{
+z-index:999 !important;
+}
+
+.btn-call {
+color: var(--text-white);
+    background-color: var(--bg-dark);
+    text-transform: capitalize;
+    display: inline-block;
+    height: 30px;
+    border-radius: 3px;
+    padding: 0 10px;
+    line-height: 30px;
+    position: relative;
+	font-size: 1.6rem;
+}
+
+
+.favorite-button {
+    background-color: #ffcc00;
+}
+
+.favorite-button:hover {
+    background-color: #ff9900;
+}
+
+</style>
+{% endblock %}
+
+
+{% block content %}
+<section>
+<div class="row">
+                <!-- Search Section Start -->
+    <div class="col-sm-5 col-lg-3">
+        <nav class="sidebar card py-2 mt-4">
+            <div class="filter-search-box px-3 pb-0 mt-3">
+                <div class="search-sidebar_header">
+                    <h4 class="ssh_heading">Search Filter</h4>
+                </div>
+            </div>
+            <div style="clear: both;"/>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="school" id="schoolCheck">
+                <label class="form-check-label" for="schoolCheck">Show Schools</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="kinder_garden" id="kinderGardenCheck">
+                <label class="form-check-label" for="kinderGardenCheck">Show Kindergartens</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="social_child_project" id="socialChildProjectCheck">
+                <label class="form-check-label" for="socialChildProjectCheck">Show Social Child Projects</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="social_teenager_project" id="socialTeenagerProjectCheck">
+                <label class="form-check-label" for="socialTeenagerProjectCheck">Show Social Teenager Projects</label>
+            </div>
+            <button class="form-control fs-4 py-3 mt-3" onclick="fetchSelectedData()">Show Selected</button>
+            
+        </nav>
+    </div>
+    <!-- Search Section End -->
+				
+				<!-- Display Map Section Start -->
+                <div class="col-sm-7 col-lg-9 mt-4">
+				
+				<!-- flash message for error -->
+					{% with messages = get_flashed_messages() %}
+							{% if messages %}
+								{% for message in messages %}
+									<p class="text-danger fs-5">{{ message }}</p>
+							{% endfor %}
+							{% endif %}
+							{% endwith %}
+				<!-- end flash message for error -->
+							
+					<div id="map"></div>
+				</div>
+				<!-- End Display Map Section Start -->
+		</div>
+</section>
+{% endblock %}
+
+{% block js %}
+ <script src="{{ url_for('static', filename='js/map.js') }}"></script>
+
+ <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
+	 
+	 
+	<script>
+	const SCHOOLS = "schools"
+	const KINDERGARDEN = "kindergarden"
+	const SOCIAL_CHILD_PROJECTS = "social_child_projects"
+	const SOCIAL_TEENAGER_PROJECTS = "social_teenager_projects"
+	
+	var favoriteFacilityId = {{ favorite_facility_id|safe }};
+	var favoriteFacilityCollection = "{{ favorite_facility_collection|safe }}";
+	
+	// ini map
+	var map = L.map('map')
+	map.setView([0, 0], 20);
+	
+	L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+		//maxZoom: 13,
+		attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+	}).addTo(map);
+	
+	
+	var markers = [];
+
+	function fetchSelectedData() {
+        let selectedTypes = [];
+        if ($('#schoolCheck').is(':checked')) selectedTypes.push(SCHOOLS);
+        if ($('#kinderGardenCheck').is(':checked')) selectedTypes.push(KINDERGARDEN);
+        if ($('#socialChildProjectCheck').is(':checked')) selectedTypes.push(SOCIAL_CHILD_PROJECTS);
+        if ($('#socialTeenagerProjectCheck').is(':checked')) selectedTypes.push(SOCIAL_TEENAGER_PROJECTS);
+
+		let query = selectedTypes.map(type => `type=${type}`).join('&');
+		
+		$.ajax({
+            url: `/map-json-data?${query}`,
+            method: 'GET',
+            success: function(data) {
+			
+			// change favorite facility
+			favoriteFacilityId = data.favorite_facility_id
+			favoriteFacilityCollection = data.favorite_facility_collection
+			data = data.data
+			console.log();
+			// Clear existing markers
+				markers.forEach(marker => map.removeLayer(marker));
+				markers = [];
+
+			 // Add new markers for each type
+            Object.keys(data).forEach(type => {
+                data[type].forEach(item => {
+                    addMarker(item, type);
+                });
+            });
+				
+            },
+            error: function(err) {
+                alert("An error occurred while fetching the data.");
+            }
+        });
+        
+    }
+	
+	// popup content
+	function createPopupContent(item, dataType) {
+     let popupContent = '<strong>' + (item.bezeichnung || 'N/A') + '</strong><br>' +
+        
+       
+'<div class="popup-table-container"><table class="popup-table">';
+
+    if (dataType === SCHOOLS) {
+        popupContent +=
+            
+  
+'<tr><th>Category</th><td>' + (item.art || 'N/A') + '</td></tr>' +
+            '<tr><th>Location Type</th><td>' + (item.standorttyp || 'N/A') + '</td></tr>' +
+            '<tr><th>Address</th><td>' + (item.strasse || 'N/A') + ', ' + (item.plz || 'N/A') + ' ' + (item.ort || 'N/A') + '</td></tr>' +
+            '<tr><th>Phone</th><td>' + (item.telefon || 'N/A') + '</td></tr>' +
+            '<tr><th>Fax</th><td>' + (item.fax || 'N/A') + '</td></tr>' +
+            '<tr><th>Email</th><td>' + (item.email || 'N/A') + '</td></tr>' +
+            
+   
+'<tr><th>Website</th><td>' + (item.www ? '<a href="' + (item.www.startsWith('http://') || item.www.startsWith('https://') ? item.www : 'http://' + item.www) + '" target="_blank">' + item.www + '</a>' : 'N/A') + '</td></tr>' +
+
+            '<tr><th>Profile</th><td>' + (item.profile || 'N/A') + '</td></tr>' +
+            '<tr><th>Short Name</th><td>' + (item.kurzbezeichnung || 'N/A') + '</td></tr>' +
+            '<tr><th>Carrier</th><td>' + (item.traeger || 'N/A') + '</td></tr>' +
+            
+            
+'<tr><th>Carrier Type</th><td>' + (item.traegertyp || 'N/A') + '</td></tr>' +
+            '<tr><th>Created on</th><td>' + (new Date(parseInt(item.creationdate)).toLocaleString() || 'N/A') + '</td></tr>' +
+            '<tr><th>Edited on</th><td>' + (new Date(parseInt(item.editdate)).toLocaleString() || 'N/A') + '</td></tr>' +
+            '<tr><th>Creator</th><td>' + (item.creator || 'N/A') + '</td></tr>' +
+            '<tr><th>Editor</th><td>' + (item.editor || 'N/A') + '</td></tr>';
+    } else if (dataType === KINDERGARDEN) {
+        popupContent +=
+            '<tr><th>Category</th><td>Kindergarten</td></tr>' +
+            '<tr><th>Address</th><td>' + (item.strasse || 'N/A') + ' ' + (item.hausbez || 'N/A') + ', ' + (item.plz || 'N/A') + ' ' + (item.ort || 'N/A') + '</td></tr>' +
+            '<tr><th>Phone</th><td>' + (item.telefon || 'N/A') + '</td></tr>' +
+            '<tr><th>Fax</th><td>' + (item.fax || 'N/A') + '</td></tr>' +
+            '<tr><th>Email</th><td>' + (item.email || 'N/A') + '</td></tr>' +
+            '<tr><th>Website</th><td>' + (item.url ? '<a href="' + item.url + '" target="_blank">' + item.url + '</a>' : 'N/A') + '</td></tr>' +
+            '<tr><th>Barrier-free</th><td>' + (item.barrierefrei ? 'Yes' : 'No') + '</td></tr>' +
+            '<tr><th>Integrative</th><td>' + (item.integrativ ? 'Yes' : 'No') + '</td></tr>' +
+            '<tr><th>Carrier</th><td>' + (item.traeger || 'N/A') + '</td></tr>';
+    } else if (dataType === SOCIAL_CHILD_PROJECTS) {
+        popupContent +=
+            '<tr><th>Category</th><td>Social Child Project</td></tr>' +
+            '<tr><th>Address</th><td>' + (item.strasse || 'N/A') + ', ' + (item.plz || 'N/A') + ' ' + (item.ort || 'N/A') + '</td></tr>' +
+            '<tr><th>Phone</th><td>' + (item.telefon || 'N/A') + '</td></tr>' +
+            '<tr><th>Services</th><td>' + (item.leistungen || 'N/A') + '</td></tr>' +
+            '<tr><th>Carrier</th><td>' + (item.traeger || 'N/A') + '</td></tr>';
+    } else if (dataType === SOCIAL_TEENAGER_PROJECTS) {
+        popupContent +=
+           
+         
+'<tr><th>Category</th><td>Social Teenager Project</td></tr>' +
+            '<tr><th>Address</th><td>' + (item.strasse || 'N/A') + ', ' + (item.plz || 'N/A') + ' ' + (item.ort || 'N/A') + '</td></tr>' +
+            '<tr><th>Phone</th><td>' + (item.telefon || 'N/A') + '</td></tr>' +
+            
+            
+'<tr><th>Services</th><td>' + (item.leistungen || 'N/A') + '</td></tr>' +
+            '<tr><th>Carrier</th><td>' + (item.traeger || 'N/A') + '</td></tr>';
+    }
+
+    popupContent += '</table></div>';
+
+    popupContent += '<div style="margin-top: 10px;">' +
+    '<button class="btn-call" onclick="window.location.href=\'tel:' + (item.telefon || '') + '\'" ' + (!item.telefon ? 'disabled' : '') + '>Call</button>' +
+    '<button class="btn-call" onclick="window.location.href=\'mailto:' + (item.email || '') + '\'" ' + (!item.email ? 'disabled' : '') + '>Email</button>' +
+    '<button class="btn-call" onclick="window.open(\'' + (item.url ? (item.url.startsWith('http://') || item.url.startsWith('https://') ? item.url : 'http://' + item.url) : (item.www ? (item.www.startsWith('http://') || item.www.startsWith('https://') ? item.www : 'http://' + item.www) : '')) + '\', \'_blank\')" ' + 
+    (!item.url && !item.www ? 'disabled' : '') + '>Website</button>';
+
+if (favoriteFacilityId === item.id && favoriteFacilityId !== 0 && favoriteFacilityCollection !== '' && favoriteFacilityCollection === dataType) {
+    popupContent += '<button class="popup-button favorite-button" onclick="removeAsFavorite(' + item.id + ', \'' + dataType + '\')">Remove as Favorite</button>';
+} else {
+    popupContent += '<button class="popup-button favorite-button" onclick="markAsFavorite(' + item.id + ', \'' + dataType + '\')">Mark as Favorite</button>';
+}
+
+popupContent += '</div>';
+
+    return popupContent;
+}
+
+/**
+Mark as a Favorite
+*/
+function markAsFavorite(id, facility) {
+	$.ajax({
+            url: `/mark-as-favorite-facility/${id}/${facility}`,
+            method: 'POST',
+            success: function(data) {
+
+				// reload the map
+				fetchSelectedData() 
+				
+            },
+            error: function(err) {
+                alert("An error occurred while making facility marked as a favorite.");
+            }
+        });
+}
+
+
+/**
+Remove as a Favorite
+*/
+function removeAsFavorite(id, facility) {
+
+	$.ajax({
+            url: `/remove-as-favorite-facility/${id}/${facility}`,
+            method: 'POST',
+            success: function(data) {
+
+				// reload the map
+				fetchSelectedData() 
+				
+            },
+            error: function(err) {
+                alert("An error occurred while making facility marked as a favorite.");
+            }
+        });
+}
+
+
+	// function for addMarker for each facilites(school, kindergarden, ...)
+	function addMarker(item, dataType) {
+            let iconUrl = '';
+            //let popupText = '';
+            let listItemText = '';
+
+            switch(dataType) {
+                case SCHOOLS:
+                    iconUrl = "{{ url_for('static', filename='images/map icon/school.png') }}";
+                   // popupText = 'I am a school.';
+                    listItemText = 'School';
+                    break;
+                case KINDERGARDEN:
+                    iconUrl = "{{ url_for('static', filename='images/map icon/garden.png') }}";
+                   // popupText = 'I am a Garden.';
+                    listItemText = 'Kindergarten';
+                    break;
+                case SOCIAL_CHILD_PROJECTS:
+                    iconUrl = "{{ url_for('static', filename='images/map icon/social child project.png') }}";
+                  //  popupText = 'I am a Garden.';
+                    listItemText = 'Social Child Project';
+                    break;
+                case SOCIAL_TEENAGER_PROJECTS:
+                    iconUrl = "{{ url_for('static', filename='images/map icon/social teenager projects.png') }}";
+                   // popupText = 'I am a Garden.';
+                    listItemText = 'Social Teenager Project';
+                    break;
+            }
+
+			// check if any Favorite Facility added
+			if (favoriteFacilityId != 0 &&  favoriteFacilityCollection != ''){
+			if (favoriteFacilityId === item.id && favoriteFacilityCollection === dataType) {
+					iconUrl = "{{ url_for('static', filename='images/map icon/star.png') }}";
+					}
+					}
+					
+            let icon = L.icon({
+                iconUrl: iconUrl,
+                iconSize: [35, 40],
+                iconAnchor: [12, 40],
+                popupAnchor: [0, -40]
+            });
+    
+
+            let marker = L.marker([item.lat, item.lng], { icon: icon })
+                .addTo(map)
+                .bindPopup(createPopupContent(item, dataType))
+				.on('click', function() {
+					map.setView([item.lat, item.lng], 20);
+				});
+            markers.push(marker);
+        }
+	
+	
+	// for live location
+	navigator.geolocation.watchPosition(success, error);
+
+	let userMarker, userCircle;
+
+	function success(pos) {
+		const lat = pos.coords.latitude;
+		const lng = pos.coords.longitude;
+		const accuracy = pos.coords.accuracy;
+
+		if (userMarker) {
+			map.removeLayer(userMarker);
+			map.removeLayer(userCircle);
+		}	
+
+		userMarker = L.marker([lat, lng]).addTo(map).bindPopup("User live location");
+		userCircle = L.circle([lat, lng], { radius: accuracy }).addTo(map);
+
+		map.fitBounds(userCircle.getBounds());
+	}
+
+	function error(err) {
+		if (err.code === 1) {
+			alert("Please allow geolocation access");
+		} else {
+			alert("Cannot get current location");
+		}
+	}
+
+	</script>
+{% endblock %}

@@ -1,0 +1,2 @@
+Run env environment:
+env\Scripts\activate.bat

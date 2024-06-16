@@ -1,0 +1,126 @@
+{% extends 'layout/base.html' %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% block content %}
+<section>
+<div class="align-items-center">
+ <div class="col-sm-10 m-auto">
+                            <h2>Edit your Profile</h2>
+                            <form action="{{ url_for('edit_profile') }}" method="post" class="m-auto">
+                               <div class="row">
+							   <!-- First name -->
+							    <div class="mb-3 col-lg-6">
+                                        <h6 class="pt-2">First Name</h6>
+                                        <input type="text" class="form-control fs-4 py-3" name="fname" id="fname" value="{{ user_data.firstName }}">
+                                    </div>
+								<!-- End First name -->
+								
+								<!-- Last name -->
+                                    <div class="mb-3 col-lg-6">
+                                        <h6 class="pt-2">Last Name</h6>
+                                        <input type="text" class="form-control fs-4 py-3" name="lname" id="lname" value="{{ user_data.lastName }}">
+                                    </div>
+								<!-- End Last Name -->	
+								
+								<!-- Date -->
+                                    <div class="mb-3">
+                                        <h6 class="pt-2">Date Of Birth</h6>
+                                        <input type="date" class="form-control  fs-4 py-3 fs-4 py-3" name="dob" id="dob" value="{{ user_data.dateOfBirth }}">
+                                    </div>
+								<!-- End Date -->	
+								
+								<!-- Role Type -->
+								<div class="mb-3">
+                                        <h6 class="pt-2">Role</h6>
+                                        <select class="form-select fs-4 py-3" name="role" id="role">
+                                            <option value="student"  {% if user_data.role == 'student' %} selected {% endif %}>Student</option>
+                                            <option value="parent" {% if user_data.role == 'parent' %} selected {% endif %}>Parent</option>
+                                            <option value="teacher" {% if user_data.role == 'teacher' %} selected {% endif %}>Teacher</option>
+                                            <option value="other" {% if user_data.role == 'other' %} selected {% endif %}>Other</option>
+                                        </select>
+                                    </div>
+								<!-- End Role Type -->
+								
+								<!-- Email -->
+                                    <div class="mb-3">
+                                        <h6 class="pt-2">Email</h6>
+                                        <input type="text" class="form-control  fs-4 py-3 fs-4 py-3" name="email" id="email" value="{{ user_data.email }}">
+                                    </div>
+								<!-- End Email -->	
+								
+								<!-- Password -->
+                                    <div class="mb-3">
+                                        <h6 class="pt-2">Password</h6>
+                                        <input type="password" class="form-control  fs-4 py-3 fs-4 py-3" name="password" id="password">
+										<p class="form-text fs-5">Leave this field blank to keep the current password.</p>
+                                    </div>
+								<!-- End Passwrod -->	
+								
+								<!-- button -->
+								<div class="mb-3 mt-5">
+                                        <input type="submit" value="Update" class="btn al-btn me-2">
+                                        <button class="btn al-btn al-btn-danger"><a href="{{url_for('user_profile')}}" style="color:#fff">Cancle</a></button>
+                                    </div>
+									<!-- End button -->
+							   </div>
+                            </form>
+                        </div>
+						</div>
+            </section>
+{% endblock %}
+
+{% block js %}
+<script>
+        $(document).ready(function() {
+            $('form').on('submit', function(event) {
+                // Prevent form submission
+                event.preventDefault();
+
+                // Clear previous error messages
+                $('.input-error').remove();
+
+                // Validate form fields
+                var isValid = true;
+
+                // Check if all fields are filled (except for password)
+				$('input[type!="password"]').each(function() {
+					if ($(this).val() === '') {
+						isValid = false;
+						$(this).after('<span class="text-danger fs-5 input-error">* This field is required.</span>');
+					}
+				});
+
+                // If all validations pass, submit the form
+                if (isValid) {
+                    this.submit();
+                }
+            });
+			
+			
+			// email address exist validations
+			$('#email').on('focusout',function(e){
+				var email = $(this).val();
+					$.ajax({
+						url: "{{ url_for('email_validation_for_update') }}",
+						method: 'GET',
+						data: { email: email },
+						success: function(result) {
+							if(result.valid) {
+								$('.input-error').remove();
+								$('input[type="submit"]').prop('disabled', false);
+							} else {
+							event.preventDefault();
+							$('.input-error').remove();
+								$('#email').after('<span class="text-danger fs-5 input-error">This email is already registered in our database. Please enter another one.</span>');
+								$('input[type="submit"]').prop("disabled",true);
+							}
+						},
+						error: function(xhr, status, error) {
+							alert("An error occurred: " + error);
+						}
+					});
+				});
+        });
+    </script>
+{% endblock %}

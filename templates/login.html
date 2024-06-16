@@ -1,0 +1,73 @@
+{% extends 'layout/base.html' %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<!-- Login Section Start -->
+    <section class="login">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-8 col-lg-6 col-xl-4 mx-auto rounded-3 border p-5">
+                    <div>
+                        <h2>Log In</h2>
+                    </div>
+					
+					{% if message is defined %}
+						<p class="text-danger fs-5">* {{ message }}</p>
+					{% endif %}
+
+                    <form action="{{url_for('login')}}" method="post">
+                        <div class="mb-3">
+                            <input type="email" class="form-control fs-4 py-3" name="email" id="email"
+                                placeholder="name@example.com">
+                        </div>
+                        <div class="mb-3">
+                            <input type="password" class="form-control fs-4 py-3" name="password" id="password"
+                                placeholder="Password">
+                        </div>
+                        <div class="text-end">
+                            <a href="{{ url_for('forget_password') }}" class="fw-bold text-decoration-none">Forget Password?</a>
+                        </div>
+						<input type="submit" class="btn al-btn w-100 my-4" value="Log In">
+                        
+                        <div class="mb-4 text-center my-5">
+                            <p class="line-heading my-5  text-muted">You don't have acoount?</p>
+                            <a href="{{ url_for('register') }}" class="btn al-btn al-btn-light">Create an Account</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Login Section End -->
+{% endblock %}
+
+{% block js %}
+<script>
+        $(document).ready(function() {
+            $('form').on('submit', function(event) {
+                // Prevent form submission
+                event.preventDefault();
+
+                // Clear previous error messages
+                $('.input-error').remove();
+
+                // Validate form fields
+                var isValid = true;
+
+                // Check if all fields are filled
+                $('input').each(function() {
+                    if ($(this).val() === '') {
+                        isValid = false;
+                        $(this).after('<span class="text-danger fs-5 input-error">* This field is required.</span>');
+                    }
+                });
+
+                // If all validations pass, submit the form
+                if (isValid) {
+                    this.submit();
+                }
+            });
+        });
+    </script>
+{% endblock %}

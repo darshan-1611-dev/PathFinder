@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        #map {
+            width: 70%;
+            height: 600px;
+            float: left;
+        }
+        #data-list {
+            width: 30%;
+            height: 600px;
+            overflow-y: auto;
+            float: right;
+        }
+        #data-list ul {
+            list-style: none;
+            padding: 0;
+        }
+        #data-list li {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div id="data-list">
+        <ul id="list">
+            <!-- Data points will be listed here -->
+        </ul>
+    </div>
+    <div style="clear: both;"></div>
+    <button onclick="fetchData('school')">Show Schools</button>
+    <button onclick="fetchData('kinder_garden')">Show Kindergartens</button>
+    <button onclick="fetchData('social_child_project')">Show Social Child Projects</button>
+    <button onclick="fetchData('social_teenager_project')">Show Social Teenager Projects</button>
+    <button onclick="fetchAllData()">Show All</button>
+
+    <script>
+        var map = L.map('map').setView([0, 0], 2);
+
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        var markers = [];
+
+        function fetchData(dataType) {
+            $.ajax({
+                url: `/data/${dataType}`,
+                method: 'GET',
+                success: function(data) {
+                    // Clear existing markers
+                    markers.forEach(marker => map.removeLayer(marker));
+                    markers = [];
+
+                    // Clear existing list
+                    $('#list').empty();
+
+                    // Add new markers and update list
+                    data.forEach(item => {
+                        addMarker(item, dataType);
+                    });
+                },
+                error: function(err) {
+                    alert("An error occurred while fetching the data.");
+                }
+            });
+        }
+
+        function fetchAllData() {
+            $.ajax({
+                url: `/data/all`,
+                method: 'GET',
+                success: function(data) {
+                    // Clear existing markers
+                    markers.forEach(marker => map.removeLayer(marker));
+                    markers = [];
+
+                    // Clear existing list
+                    $('#list').empty();
+
+                    // Add new markers and update list for each type
+                    Object.keys(data).forEach(type => {
+                        data[type].forEach(item => {
+                            addMarker(item, type);
+                        });
+                    });
+                },
+                error: function(err) {
+                    alert("An error occurred while fetching the data.");
+                }
+            });
+        }
+
+        function addMarker(item, dataType) {
+            let iconUrl = '';
+            let popupText = '';
+            let listItemText = '';
+
+            switch(dataType) {
+                case 'school':
+                    iconUrl = "{{ url_for('static', filename='images/map icon/school.png') }}";
+                    popupText = 'I am a school.';
+                    listItemText = 'School';
+                    break;
+                case 'kinder_garden':
+                    iconUrl = "{{ url_for('static', filename='images/map icon/garden.png') }}";
+                    popupText = 'I am a Garden.';
+                    listItemText = 'Kindergarten';
+                    break;
+                case 'social_child_project':
+                    iconUrl = "{{ url_for('static', filename='images/map icon/social child project.png') }}";
+                    popupText = 'I am a Garden.';
+                    listItemText = 'Social Child Project';
+                    break;
+                case 'social_teenager_project':
+                    iconUrl = "{{ url_for('static', filename='images/map icon/social teenager projects.png') }}";
+                    popupText = 'I am a Garden.';
+                    listItemText = 'Social Teenager Project';
+                    break;
+            }
+
+            let icon = L.icon({
+                iconUrl: iconUrl,
+                iconSize: [35, 40],
+                iconAnchor: [12, 40],
+                popupAnchor: [0, -40]
+            });
+
+            let marker = L.marker([item.lat, item.lng], { icon: icon })
+                .addTo(map)
+                .bindPopup(popupText);
+
+            markers.push(marker);
+
+            // Add item to the list
+            $('#list').append('<li>${listItemText}: (${item.lat}, ${item.lng})</li>');
+					
+        }
+
+        // Initial fetch to display all data by default
+        fetchAllData();
+
+        // Live location
+        navigator.geolocation.watchPosition(success, error);
+
+        let userMarker, userCircle;
+
+        function success(pos) {
+            const lat = pos.coords.latitude;
+            const lng = pos.coords.longitude;
+            const accuracy = pos.coords.accuracy;
+
+            if (userMarker) {
+                map.removeLayer(userMarker);
+                map.removeLayer(userCircle);
+            }
+
+            userMarker = L.marker([lat, lng]).addTo(map).bindPopup("User live location");
+            userCircle = L.circle([lat, lng], { radius: accuracy }).addTo(map);
+
+            map.fitBounds(userCircle.getBounds());
+        }
+
+        function error(err) {
+            if (err.code === 1) {
+                alert("Please allow geolocation access");
+            } else {
+                alert("Cannot get current location");
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+{% extends 'layout/base.html' %}
+
+{% block title %}User Profile{% endblock %}
+
+{% block content %}
+<section>
+                        <div class="personal-detail mb-5">
+                            <h3>Personal Detail</h3>
+                            <hr>
+							{% with messages = get_flashed_messages() %}
+							{% if messages %}
+								{% for message in messages %}
+									<p class="text-danger fs-5">{{ message }}</p>
+							{% endfor %}
+							{% endif %}
+							{% endwith %}
+					
+                            <div class="row mt-5 px-5 align-items-center">
+                                <div class="col-md-3">
+                                    <h6 class="d-inline-block me-2">First Name:</h6>
+                                    <p class="d-inline-block">{{ user_data.firstName  }}</p>
+                                </div>
+                                <div class="col-md-3">
+                                    <h6 class="d-inline-block me-2">Last Name:</h6>
+                                    <p class="d-inline-block">{{ user_data.lastName  }}</p>
+                                </div>
+								<div class="">
+                                    <h6 class="d-inline-block me-2">
+									Email:</h6>
+                                    <p class="d-inline-block">{{ user_data.email }}</p>
+                                </div>
+                                <div class="">
+                                    <h6 class="d-inline-block me-2">
+									Date Of Birth:</h6>
+                                    <p class="d-inline-block">{{ user_data.dateOfBirth }}</p>
+                                </div>
+                                <div class="">
+                                    <h6 class="d-inline-block me-2">Role:</h6>
+                                    <p class="d-inline-block">{{ user_data.role }}</p>
+                                </div>
+                            </div>
+							
+							
+							<div class="row  mt-5 px-5">
+							
+							<!-- Edit Data Button -->
+							<div class="mb-4 col-md-6 col-lg-3">
+                            <a href="{{ url_for('edit_profile') }}" class="btn al-btn 		al-btn-light">Edit Profile</a>
+							</div>
+							
+							<div class="mb-4 col-md-6 col-lg-3">
+                            <a href="{{ url_for('delete_profile') }}" style="background:#dc3545" class="btn  al-btn btn-danger ">Delete Profile</a>
+							</div>
+							<!-- End Edit Data Button -->
+							
+							</div>
+							
+							
+                        </div>
+						</section>
+{% endblock %}

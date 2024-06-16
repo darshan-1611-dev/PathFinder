@@ -1,0 +1,227 @@
+{% extends 'layout/base.html' %}
+
+{% block title %}Explore Map{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/map.css') }}">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+<style>
+#map { height: 500px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<section>
+<div class="row">
+    <!-- Search Section Start -->
+    <div class="col-sm-5 col-lg-3">
+        <nav class="sidebar card py-2 mt-4">
+            <div class="filter-search-box px-3 pb-0 mt-3">
+                <div class="search-sidebar_header">
+                    <h4 class="ssh_heading">Search Filter</h4>
+                </div>
+            </div>
+            <div style="clear: both;"/>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="school" id="schoolCheck">
+                <label class="form-check-label" for="schoolCheck">Show Schools</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="kinder_garden" id="kinderGardenCheck">
+                <label class="form-check-label" for="kinderGardenCheck">Show Kindergartens</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="social_child_project" id="socialChildProjectCheck">
+                <label class="form-check-label" for="socialChildProjectCheck">Show Social Child Projects</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="social_teenager_project" id="socialTeenagerProjectCheck">
+                <label class="form-check-label" for="socialTeenagerProjectCheck">Show Social Teenager Projects</label>
+            </div>
+            <button class="form-control fs-4 py-3 mt-3" onclick="fetchSelectedData()">Show Selected</button>
+            <button class="form-control fs-4 py-3 mt-3" onclick="fetchAllData()">Show All</button>
+        </nav>
+    </div>
+    <!-- Search Section End -->
+
+    <!-- Display Map Section Start -->
+    <div class="col-sm-7 col-lg-9 mt-4">			
+        <div id="map"></div>
+    </div>
+    <!-- End Display Map Section Start -->
+</div>
+</section>
+{% endblock %}
+
+{% block js %}
+<script src="{{ url_for('static', filename='js/map.js') }}"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
+
+<script>
+	const SCHOOLS = "schools"
+	const KINDERGARDEN = "kindergarden"
+	const SOCIAL_CHILD_PROJECTS = "social_child_projects"
+	const SOCIAL_TEENAGER_PROJECTS = "social_teenager_projects"
+	
+    // Initialize map
+    var map = L.map('map').setView([0, 0], 2);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+
+    var markers = [];
+
+    function fetchData(dataType) {
+        $.ajax({
+            url: `/map-json-data/${dataType}`,
+            method: 'GET',
+            success: function(data) {
+                // Clear existing markers
+                markers.forEach(marker => map.removeLayer(marker));
+                markers = [];
+
+                // Add new markers
+                data.forEach(item => {
+                    addMarker(item, dataType);
+                });
+            },
+            error: function(err) {
+                alert("An error occurred while fetching the data.");
+            }
+        });
+    }
+
+    function fetchAllData() {
+        $.ajax({
+            url: `/map-all-json-data`,
+            method: 'GET',
+            success: function(data) {
+                // Clear existing markers
+                markers.forEach(marker => map.removeLayer(marker));
+                markers = [];
+
+                // Add new markers for each type
+                Object.keys(data).forEach(type => {
+                    data[type].forEach(item => {
+						console.log(type);
+                        addMarker(item, type);
+                    });
+                });
+            },
+            error: function(err) {
+                alert("An error occurred while fetching the data.");
+            }
+        });
+    }
+
+    function fetchSelectedData() {
+        let selectedTypes = [];
+        if ($('#schoolCheck').is(':checked')) selectedTypes.push(SCHOOLS);
+        if ($('#kinderGardenCheck').is(':checked')) selectedTypes.push(KINDERGARDEN);
+        if ($('#socialChildProjectCheck').is(':checked')) selectedTypes.push(SOCIAL_CHILD_PROJECTS);
+        if ($('#socialTeenagerProjectCheck').is(':checked')) selectedTypes.push(SOCIAL_TEENAGER_PROJECTS);
+
+		let query = selectedTypes.map(type => `type=${type}`).join('&');
+		
+		$.ajax({
+            url: `/map-json-data?${query}`,
+            method: 'GET',
+            success: function(data) {
+			
+			// console.log(data)
+			// Clear existing markers
+				markers.forEach(marker => map.removeLayer(marker));
+				markers = [];
+
+            
+			
+			 // Add new markers for each type
+            Object.keys(data).forEach(type => {
+                data[type].forEach(item => {
+                    addMarker(item, type);
+                });
+            });
+			
+				
+            },
+            error: function(err) {
+                alert("An error occurred while fetching the data.");
+            }
+        });
+        
+    }
+
+    function addMarker(item, dataType) {
+        let iconUrl = '';
+        let popupText = '';
+
+        switch(dataType) {
+            case SCHOOLS:
+                iconUrl = "{{ url_for('static', filename='images/map icon/school.png') }}";
+                popupText = 'I am a school.';
+                break;
+            case KINDERGARDEN:
+                iconUrl = "{{ url_for('static', filename='images/map icon/garden.png') }}";
+                popupText = 'I am a Garden.';
+                break;
+            case SOCIAL_CHILD_PROJECTS:
+                iconUrl = "{{ url_for('static', filename='images/map icon/social child project.png') }}";
+                popupText = 'I am a Garden.';
+                break;
+            case SOCIAL_TEENAGER_PROJECTS:
+                iconUrl = "{{ url_for('static', filename='images/map icon/social teenager projects.png') }}";
+                popupText = 'I am a Garden.';
+                break;
+        }
+
+        let icon = L.icon({
+            iconUrl: iconUrl,
+            iconSize: [35, 40],
+            iconAnchor: [12, 40],
+            popupAnchor: [0, -40]
+        });
+
+        let marker = L.marker([item.lat, item.lng], { icon: icon })
+            .addTo(map)
+            .bindPopup(popupText);
+        markers.push(marker);
+    }
+
+    // Initialize map with all data
+    //fetchAllData();
+
+    // Live location
+    navigator.geolocation.watchPosition(success, error);
+
+    let userMarker, userCircle;
+
+    function success(pos) {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        const accuracy = pos.coords.accuracy;
+
+        if (userMarker) {
+            map.removeLayer(userMarker);
+            map.removeLayer(userCircle);
+        }
+
+        userMarker = L.marker([lat, lng]).addTo(map).bindPopup("User live location");
+        userCircle = L.circle([lat, lng], { radius: accuracy }).addTo(map);
+
+        map.fitBounds(userCircle.getBounds());
+    }
+
+    function error(err) {
+        if (err.code === 1) {
+            alert("Please allow geolocation access");
+        } else {
+            alert("Cannot get current location");
+        }
+    }
+</script>
+{% endblock %}
