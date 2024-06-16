@@ -102,6 +102,7 @@ def user_profile():
 @app.route("/edit_profile", methods=['GET', 'POST'])
 def edit_profile():
     if request.method == 'POST':
+            
         form_data = [x for x in request.form.values()]
         utils.update_user(form_data)
         
@@ -137,8 +138,9 @@ def revoke_delete_user(user_id, email):
 @app.route("/map", methods=['GET', 'POST'])
 def map():    
     favorite_facility = utils.fetch_favorite_facility()
+    home_address = utils.fetch_user_home_address()
     
-    return render_template("map.html", favorite_facility_id=favorite_facility[0],favorite_facility_collection =favorite_facility[1])
+    return render_template("map.html", favorite_facility_id=favorite_facility[0],favorite_facility_collection =favorite_facility[1], home_address=home_address)
 
 
 @app.route("/map-json-data", methods=['GET'])
@@ -168,6 +170,7 @@ def remove_as_favorite_facility(facility_id, facility_name):
     
     data = utils.remove_as_favorite_facility(facility_id, facility_name)
     return data
+    
     
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0")

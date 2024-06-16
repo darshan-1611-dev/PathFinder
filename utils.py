@@ -7,7 +7,7 @@ from flask import url_for, flash, render_template_string, session
 from reset_password_email_template import reset_password_mail_template 
 from account_revoke_email_template import account_revoke_mail_template 
 import random
-
+import json
 
 #Mail Sender 
 MAIL_SENDER = "pathfinder@gmail.com"
@@ -202,13 +202,33 @@ Update User
 def update_user(form_data):
     # Construct update data dictionary
     update_data = {
-        'firstName': form_data[0],
-        'lastName': form_data[1],
-        'dateOfBirth': form_data[2],
-        'role': form_data[3],
-        'email': form_data[4],
-        'password': form_data[5]
-    }
+            'firstName': form_data[0],
+            'lastName': form_data[1],
+            'dateOfBirth': form_data[2],
+            'role': form_data[3],
+            'email': form_data[4],
+            'password': form_data[5]
+           }
+            
+    if len(form_data) > 6:
+        home_address = json.loads(form_data[6])
+        lat = home_address.get('y')
+        lng = home_address.get('x')
+        label = home_address.get('label')
+        
+        update_data = {
+            'firstName': form_data[0],
+            'lastName': form_data[1],
+            'dateOfBirth': form_data[2],
+            'role': form_data[3],
+            'email': form_data[4],
+            'password': form_data[5],
+            'home_address': {
+                'label': label,
+                'lat': lat,
+                'lng': lng
+                }
+            }   
     
     # Remove empty password field if it exists
     if update_data['password'] == '':
@@ -346,3 +366,14 @@ def fetch_favorite_facility():
     
         
     return [0, '']
+    
+
+def fetch_user_home_address():
+    data = auth_user_data()
+    
+    home_address = data.get("home_address", {})
+    return [
+        home_address.get("label", ""),
+        home_address.get("lat", ""),
+        home_address.get("lng", "")
+    ]

@@ -2,6 +2,11 @@
 
 {% block title %}Edit Profile{% endblock %}
 
+{% block css %}
+ <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-geosearch@3.0.0/dist/geosearch.css" />
+{% endblock %}
+
 {% block content %}
 <section>
 <div class="align-items-center">
@@ -55,7 +60,24 @@
                                         <input type="password" class="form-control  fs-4 py-3 fs-4 py-3" name="password" id="password">
 										<p class="form-text fs-5">Leave this field blank to keep the current password.</p>
                                     </div>
-								<!-- End Passwrod -->	
+								<!-- End Passwrod -->
+
+									
+								<!-- Home Address -->
+								
+								<h6 class="pt-2">Home Address</h6>
+								<div class="input-group mb-3">
+									
+									<input type="text" class="form-control fs-4 py-3 fs-4 py-3" id="search-input" 
+									{% if user_data.get('home_address') %} value="{{ user_data.home_address.label }}" {% endif %}
+									 placeholder="Enter location" >
+								<div class="input-group-append">
+								
+								</div>
+								</div>
+								<p class="form-text fs-5">Select Address from below dropdown</p>
+								<div id="search-results"></div>
+								<!-- End Home Address -->
 								
 								<!-- button -->
 								<div class="mb-3 mt-5">
@@ -71,8 +93,78 @@
 {% endblock %}
 
 {% block js %}
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
+	 
+<script src="https://unpkg.com/leaflet-geosearch@latest/dist/bundle.min.js"></script>
+
+
 <script>
-        $(document).ready(function() {
+		// search 
+		// Initialize Leaflet-Geosearch
+const provider = new GeoSearch.OpenStreetMapProvider();
+
+// Get DOM elements
+const searchInput = document.getElementById('search-input');
+const searchBtn = document.getElementById('search-btn');
+const searchResults = document.getElementById('search-results');
+
+// Function to perform search
+function performSearch() {
+    const query = searchInput.value.trim();
+    
+
+    /* if (query === '') {
+		$('#search-input').after('<span class="text-danger fs-5 input-error">Please enter a location</span>');
+        //alert('Please enter a location');
+        return;
+    }*/
+
+    provider.search({ query })
+        .then(results => {
+            displaySearchResults(results);
+        })
+        .catch(error => {
+            console.error('Error fetching search results:', error);
+            searchResults.innerHTML = '<p>An error occurred while fetching search results.</p>';
+        });
+}
+
+// Function to display search results in a dropdown
+function displaySearchResults(results) {
+    searchResults.innerHTML = ''; // Clear previous results
+
+    if (results.length === 0) {
+        searchResults.innerHTML = '<p>No results found.</p>';
+        return;
+    }
+
+    const select = document.createElement('select');
+    select.setAttribute('id', 'search-select');
+    select.setAttribute('name', 'home_address');
+    select.style.width = '100%';
+	select.classList.add('form-select', 'fs-4', 'py-3'); // Use classList.add to add multiple classes
+
+    results.forEach(result => {
+        const option = document.createElement('option');
+        option.textContent = result.label;
+        option.setAttribute('value', JSON.stringify(result)); // Store full result object as value
+        select.appendChild(option);
+    });
+
+    searchResults.appendChild(select);
+}
+
+// Event listener for search button click
+searchInput.addEventListener('keyup', performSearch);
+searchBtn.addEventListener('click', performSearch);
+
+
+/*-----------------------------------------------------------------------------*/
+		// form validation 
+		$(document).ready(function() {
             $('form').on('submit', function(event) {
                 // Prevent form submission
                 event.preventDefault();
@@ -83,13 +175,22 @@
                 // Validate form fields
                 var isValid = true;
 
+				
+				$('input[type!="password"], select').each(function() {
+            // Exclude fields based on type and id/class
+            if ($(this).attr('id') !== 'search-input' && $(this).val().trim() === '') {
+                isValid = false;
+                $(this).after('<span class="text-danger fs-5 input-error">* This field is required.</span>');
+            }
+        });
+		
                 // Check if all fields are filled (except for password)
-				$('input[type!="password"]').each(function() {
+				/*$('input[type!="password"]').each(function() {
 					if ($(this).val() === '') {
 						isValid = false;
 						$(this).after('<span class="text-danger fs-5 input-error">* This field is required.</span>');
 					}
-				});
+				});*/
 
                 // If all validations pass, submit the form
                 if (isValid) {

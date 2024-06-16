@@ -38,6 +38,17 @@
                                     <h6 class="d-inline-block me-2">Role:</h6>
                                     <p class="d-inline-block">{{ user_data.role }}</p>
                                 </div>
+								
+								{% if user_data.get("home_address") %}
+   <div class="">
+                                    <h6 class="d-inline-block me-2">Home Address:</h6>
+                                    <p class="d-inline-block">{{ user_data.home_address.label }}</p>
+                                </div>
+
+{% endif %}
+								
+								
+								
                             </div>
 							
 							

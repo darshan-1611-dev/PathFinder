@@ -10,6 +10,10 @@
      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
      crossorigin=""/>
 	 
+	<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet-geosearch@3.0.0/dist/geosearch.css"
+/>
 	 
 <style>
 #map { height: 500px; }
@@ -128,6 +132,8 @@ color: var(--text-white);
 				<!-- end flash message for error -->
 							
 					<div id="map"></div>
+
+	
 				</div>
 				<!-- End Display Map Section Start -->
 		</div>
@@ -141,7 +147,8 @@ color: var(--text-white);
      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
      crossorigin=""></script>
 	 
-	 
+	 <script src="https://unpkg.com/leaflet-geosearch@latest/dist/bundle.min.js"></script>
+
 	<script>
 	const SCHOOLS = "schools"
 	const KINDERGARDEN = "kindergarden"
@@ -150,6 +157,10 @@ color: var(--text-white);
 	
 	var favoriteFacilityId = {{ favorite_facility_id|safe }};
 	var favoriteFacilityCollection = "{{ favorite_facility_collection|safe }}";
+	
+	var home_address_lable = "{{ home_address[0]|safe }}"
+	var home_address_lat = "{{ home_address[1]|safe }}"
+	var home_address_lng = "{{ home_address[2]|safe }}"
 	
 	// ini map
 	var map = L.map('map')
@@ -161,6 +172,35 @@ color: var(--text-white);
 	}).addTo(map);
 	
 	
+	function plotHomeAddress() {
+		if(home_address_lable != '' && home_address_lat != "" && home_address_lng != "")
+		{
+			let home_icon = L.icon({
+                iconUrl: "{{ url_for('static', filename='images/map icon/home.png') }}",
+                iconSize: [35, 40],
+                iconAnchor: [12, 40],
+                popupAnchor: [0, -40]
+            });
+			
+			L.marker([home_address_lat, home_address_lng], { icon: home_icon })
+                .addTo(map)
+                .bindPopup("<p>"+ home_address_lable +"</p>")
+				.on('click', function() {
+					map.setView([home_address_lat, home_address_lng], 20);
+				});
+			
+		}
+	}
+	
+	// pot home address data
+	plotHomeAddress()
+	
+	
+	
+	
+	 
+	
+	// main task
 	var markers = [];
 
 	function fetchSelectedData() {
