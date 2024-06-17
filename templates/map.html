@@ -14,6 +14,11 @@
   rel="stylesheet"
   href="https://unpkg.com/leaflet-geosearch@3.0.0/dist/geosearch.css"
 />
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
 	 
 <style>
 #map { height: 500px; }
@@ -80,6 +85,17 @@ color: var(--text-white);
     background-color: #ff9900;
 }
 
+
+// search css
+.leaflet-control-geosearch button {
+    
+    display: none !important;
+    
+}
+
+.leaflet-control-geosearch .results.active {
+    font-size: 15px !important;
+}
 </style>
 {% endblock %}
 
@@ -89,7 +105,10 @@ color: var(--text-white);
 <div class="row">
                 <!-- Search Section Start -->
     <div class="col-sm-5 col-lg-3">
-        <nav class="sidebar card py-2 mt-4">
+        
+			
+			<!-- Search filter start -->
+		<nav class="sidebar card py-2 mt-4">
             <div class="filter-search-box px-3 pb-0 mt-3">
                 <div class="search-sidebar_header">
                     <h4 class="ssh_heading">Search Filter</h4>
@@ -113,8 +132,60 @@ color: var(--text-white);
                 <label class="form-check-label" for="socialTeenagerProjectCheck">Show Social Teenager Projects</label>
             </div>
             <button class="form-control fs-4 py-3 mt-3" onclick="fetchSelectedData()">Show Selected</button>
+			</nav>
+            <!-- Search Filter End -->
+			
+			<!-- routes filter start -->
+			<nav class="sidebar card py-2 mt-4">
+				<div class="filter-search-box px-3 pb-0 mt-3">
+                <div class="search-sidebar_header">
+                    <h4 class="ssh_heading">Search Routes</h4>
+                </div>
+            </div>
             
-        </nav>
+            <div class="mb-3">										
+										<!-- From -->
+										<h6 class="pt-2">From</h6>
+                                        <select class="form-select fs-4 py-3" name="from_routes" id="from_routes">
+										{% if home_address_lable != ''%}
+										<option value="" >Null</option>
+										<option value="{{ home_address[1], home_address[2] }}" >Home Address</option>
+										{% endif %}
+											{% for facilities in all_facility %}
+												<option disabled >{{ facilities }}</option>
+												{% for facility in all_facility[facilities] %}
+													<option value="{{ facility.lat, facility.lng  }}"  >
+													{{ facility.bezeichnung }}, {{ facility.strasse }}, {{ facility.plz }},{{ facility.plz }}, {{ facility.ort }}</option>
+												{% endfor %}
+											{% endfor %}
+                                        </select>
+										<!-- End From -->
+										
+										<br>
+										<br>
+										<br>
+										<!-- To -->
+										<h6 class="pt-2">To</h6>
+										<select class="form-select fs-4 py-3" name="to_routes" id="to_routes">
+										{% if home_address_lable != ''%}
+										<option value="" >Null</option>
+											<option value="{{ home_address[1], home_address[2] }}" >Home Address</option>
+										{% endif %}
+											{% for facilities in all_facility %}
+												<option disabled >{{ facilities }}</option>
+												{% for facility in all_facility[facilities] %}
+													<option value="{{ facility.lat, facility.lng  }}"  >
+													{{ facility.bezeichnung }}, {{ facility.strasse }}, {{ facility.plz }},{{ facility.plz }}, {{ facility.ort }}</option>
+												{% endfor %}
+											{% endfor %}
+										</select>
+										<!-- End To -->
+                                    </div>
+									
+            <button class="form-control fs-4 py-3 mt-3" onclick="plotRoutes()">Show Selected</button>
+			</nav>
+			<!-- routes Filter end -->
+        
     </div>
     <!-- Search Section End -->
 				
@@ -152,6 +223,11 @@ color: var(--text-white);
      crossorigin=""></script>
 	 
 	 <script src="https://unpkg.com/leaflet-geosearch@latest/dist/bundle.min.js"></script>
+	 
+	 <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 
 	<script>
 	const SCHOOLS = "schools"
@@ -176,6 +252,14 @@ color: var(--text-white);
 	}).addTo(map);
 	
 	
+	// search bar
+	const search = new GeoSearch.GeoSearchControl({
+		provider: new GeoSearch.OpenStreetMapProvider(),
+		style: 'bar'
+	});
+
+	
+	// Ploting Home Address
 	function plotHomeAddress() {
 		if(home_address_lable != '' && home_address_lat != "" && home_address_lng != "")
 		{
@@ -195,8 +279,6 @@ color: var(--text-white);
 			
 		} else {
 			 document.getElementById("message_text").innerText = "* Please add your home address in the Profile section.";
-
-
 		}
 	}
 	
@@ -450,6 +532,45 @@ function removeAsFavorite(id, facility) {
 			alert("Cannot get current location");
 		}
 	}
-
+	
+	
+	// select2
+	
+	// from routes
+	$(document).ready(function() {
+		$('#from_routes').select2();
+	});
+	
+	// to routes
+	$(document).ready(function() {
+		$('#to_routes').select2();
+	});
+	
+	function plotRoutes(){
+		from_data = document.getElementById("from_routes").value
+		to_data = document.getElementById("to_routes").value
+		
+		console.log(from_data);
+		
+		if(from_data == '' && to_data == ''){
+			map.removeControl(routingControl);
+			
+			return;
+		}
+		
+		from_data = from_data.substring(1, from_data.length-1).split(",");
+		to_data = to_data.substring(1, to_data.length-1).split(",");
+		
+		// routes
+		var routingControl = L.Routing.control({
+		waypoints: [
+			L.latLng(Number(from_data[0]), Number(from_data[1])),
+			L.latLng(Number(to_data[0]), Number(to_data[1]))
+		],
+				routeWhileDragging: true,
+			}).addTo(map);
+		}
+		
+	
 	</script>
 {% endblock %}

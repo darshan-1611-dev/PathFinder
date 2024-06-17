@@ -13,8 +13,13 @@ import json
 MAIL_SENDER = "pathfinder@gmail.com"
 FORGET_PASSWORD_EXPIRY_HOURS = 1
 
+''' MongoDb Atlas
+darshandhanani844
+uXWaBYHKmkH7Hpz6
+'''
 # specification of database
-CONNECTION_STRING = "mongodb://localhost:27017/"
+# CONNECTION_STRING = "mongodb://localhost:27017/"
+CONNECTION_STRING = "mongodb+srv://darshandhanani844:uXWaBYHKmkH7Hpz6@pathfindercluster.r2o8ptz.mongodb.net/"
 CURRENT_DATABASE = "pathFinderDB"
 
 # collection names

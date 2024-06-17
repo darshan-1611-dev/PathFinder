@@ -140,7 +140,13 @@ def map():
     favorite_facility = utils.fetch_favorite_facility()
     home_address = utils.fetch_user_home_address()
     
-    return render_template("map.html", favorite_facility_id=favorite_facility[0],favorite_facility_collection =favorite_facility[1], home_address=home_address)
+    all_facility = utils.fetch_all_map_points([utils.SCHOOLS_DATA_COLLECTION, utils.KINDERGARDEN_DATA_COLLECTION, utils.SOCIAL_CHILD_PROJECTS_DATA_COLLECTION, utils.SOCIAL_TEENAGER_PROJECTS_DATA_COLLECTION]);
+    
+    return render_template("map.html", 
+                favorite_facility_id=favorite_facility[0],
+                favorite_facility_collection =favorite_facility[1], 
+                home_address=home_address,
+                all_facility=all_facility)
 
 
 @app.route("/map-json-data", methods=['GET'])
