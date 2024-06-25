@@ -2,6 +2,7 @@ from flask import Flask, session, render_template, request, redirect, url_for, f
 import utils
 from flask_mail import Mail, Message
 import json
+from functools import wraps
 
 app = Flask(__name__, static_url_path="/static", static_folder='static')
 app.secret_key = "super secret key"
@@ -14,11 +15,21 @@ app.config['MAIL_USE_SSL'] = False
 
 mail_object = Mail(app)
 
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('logged_in'):
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
+        
+        
 @app.route("/")
 def index():
     return render_template("index.html")
     
-    
+
 @app.route("/login", methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -61,6 +72,7 @@ def email_validation():
     
     
 @app.route("/logout", methods=['GET'])
+@login_required
 def logout():  
     session.clear()
     return redirect(url_for('index'))
@@ -94,12 +106,14 @@ def reset_password(token):
 
 
 @app.route("/user_profile", methods=['GET'])
+@login_required
 def user_profile():
     user_data = utils.auth_user_data()
     return render_template("user_profile.html", user_data=user_data)
     
 
 @app.route("/edit_profile", methods=['GET', 'POST'])
+@login_required
 def edit_profile():
     if request.method == 'POST':
             
@@ -119,6 +133,7 @@ def email_validation_for_update():
 
 
 @app.route("/delete_profile", methods=['GET'])
+@login_required
 def delete_profile():
     if utils.delete_user_data(mail_object):
         session.clear()
@@ -136,15 +151,26 @@ def revoke_delete_user(user_id, email):
    
 
 @app.route("/map", methods=['GET', 'POST'])
-def map():    
+@login_required
+def map():       
     favorite_facility = utils.fetch_favorite_facility()
     home_address = utils.fetch_user_home_address()
     
     all_facility = utils.fetch_all_map_points([utils.SCHOOLS_DATA_COLLECTION, utils.KINDERGARDEN_DATA_COLLECTION, utils.SOCIAL_CHILD_PROJECTS_DATA_COLLECTION, utils.SOCIAL_TEENAGER_PROJECTS_DATA_COLLECTION]);
     
+    r = json.dumps(favorite_facility[2]).replace('null', '""')
+    
+    #print(r)
+    #print("=====================")
+    #r.bezeichnung = json.dumps(r.bezeichnung).replace('"', '\'')
+
+    # r = json.dumps(r).replace('"', '\'')
+    # json.loads(r)
+    
     return render_template("map.html", 
                 favorite_facility_id=favorite_facility[0],
                 favorite_facility_collection =favorite_facility[1], 
+                favorite_facility_data = r,
                 home_address=home_address,
                 all_facility=all_facility)
 
@@ -171,12 +197,17 @@ def mark_as_favorite_facility(facility_id, facility_name):
     return data
     
 
-@app.route("/remove-as-favorite-facility/<facility_id>/<facility_name>", methods=["GET" ,"POST"])
+@app.route("/remove-as-favorite-facility/<facility_id>/<facility_name>", methods=["POST"])
 def remove_as_favorite_facility(facility_id, facility_name):
-    
     data = utils.remove_as_favorite_facility(facility_id, facility_name)
     return data
     
+
+@app.route("/fetch-favorite-facility", methods=["GET"])
+def fetch_favorite_facility():
+    data = utils.fetch_favorite_facility_json()
+    return data
+
     
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0")

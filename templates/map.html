@@ -17,54 +17,74 @@
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
 
+<link rel="stylesheet" href="https://ptma.github.io/Leaflet.Legend/src/leaflet.legend.css" />
+
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
 
 	 
 <style>
-#map { height: 500px; }
 
-    /* Styles for the popup table */
+#map {
+    height: 500px;
+}
+
+.ssh_heading {
+    font-size: 2rem; /* Increased font size for the heading */
+}
+
+.form-check-label {
+    font-size: 1.35rem; /* Increased font size for the labels */
+}
+
+.btn {
+    font-size: 1.25rem; /* Increased font size for the button */
+}
+
+/* Styles for the popup table */
 .popup-table {
     width: 100%;
-    max-height: 300px; 
-    overflow-y: auto; 
-    border-collapse: collapse; 
+    max-height: 300px;
+    overflow-y: auto;
+    border-collapse: collapse;
 }
 
 .popup-table th,
 .popup-table td {
-    padding: 10px; /* Add padding for better spacing */
-    text-align: left; /* Align text to the left */
-    border-bottom: 1px solid #ddd; /* Add a bottom border */
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
 }
 
 .popup-table th {
-    background-color: #f2f2f2; /* Light grey background for table headers */
-    top: 0; /* Position at the top */
+    background-color: #f2f2f2;
+    position: sticky;
+    top: 0;
 }
 
 .popup-table tr:hover {
-    background-color: #f1f1f1; /* Light grey background on hover */
+    background-color: #f1f1f1;
 }
 
 .popup-table-container {
-    width: 100%; /* Full width of the container */
-    max-height: 300px; /* Set the maximum height for the container */
-    overflow-y: auto; /* Enable vertical scrolling */
-    border: 1px solid #ddd; /* Add a border around the container */
-    padding: 10px; /* Add padding for better spacing */
+    width: 100%;
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    padding: 10px;
 }
 
-.popup-table-container td,.popup-table-container th{
-font-size:15px !important;
+.popup-table-container td, .popup-table-container th {
+    font-size: 15px !important;
 }
 
-#main-nav,.header,.navbar{
-z-index:999 !important;
+#main-nav, .header, .navbar {
+    z-index: 999 !important;
 }
 
 .btn-call {
-color: var(--text-white);
+    color: var(--text-white);
     background-color: var(--bg-dark);
     text-transform: capitalize;
     display: inline-block;
@@ -73,9 +93,8 @@ color: var(--text-white);
     padding: 0 10px;
     line-height: 30px;
     position: relative;
-	font-size: 1.6rem;
+    font-size: 1.6rem;
 }
-
 
 .favorite-button {
     background-color: #ffcc00;
@@ -85,18 +104,102 @@ color: var(--text-white);
     background-color: #ff9900;
 }
 
-
-// search css
-.leaflet-control-geosearch button {
-    
-    display: none !important;
-    
+/* Sidebar specific styles */
+.sidebar {
+    // background: #f8f9fa;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-top: 20px;
 }
 
-.leaflet-control-geosearch .results.active {
-    font-size: 15px !important;
+
+//.sidebar .filter-search-box {
+ //   background: #ffffff;
+  //  border: 0px solid #dee2e6;
+  //  border-radius: 2px;
+  //  padding: 5px;
+//}
+
+.sidebar h6 {
+    font-size: 18px;
+    font-weight: 500;
+    color: #495057;
 }
-</style>
+
+.sidebar .form-select {
+    font-size: 16px;
+    padding: 12px;
+    border-radius: 5px;
+    border: 1px solid #ced4da;
+    color: #495057;
+}
+
+.sidebar .show-selected-btn {
+    background: #090b3d;
+    color: #ffffff;
+    border-radius: 5px;
+    transition: background 0.3s ease;
+}
+
+.sidebar .show-selected-btn:hover {
+    background: #050725;
+    color: #ffffff;
+}
+
+.sidebar hr {
+    border-top: 1px solid #dee2e6;
+}
+
+.sidebar .mb-3, .sidebar .pt-2 {
+    margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        padding: 15px;
+    }
+
+    .sidebar .ssh_heading {
+        font-size: 20px;
+    }
+
+    .sidebar h6 {
+        font-size: 16px;
+    }
+
+    .sidebar .form-select {
+        font-size: 14px;
+        padding: 10px;
+    }
+
+    .sidebar .show-selected-btn {
+        font-size: 16px;
+    }
+}
+
+
+.legend i {
+    width: 18px;
+    height: 18px;
+    float: left;
+    margin-right: 8px;
+    opacity: 0.7;
+}
+
+.legend {
+    padding: 6px 8px;
+    font: 14px/16px Arial, Helvetica, sans-serif;
+    background: white;
+    background: rgba(255,255,255,0.8);
+    box-shadow: 0 0 15px rgb(0 0 0 / 20%);
+    border-radius: 5px;
+	line-height: 18px;
+    color: #555;
+}
+
+  </style>
 {% endblock %}
 
 
@@ -108,82 +211,91 @@ color: var(--text-white);
         
 			
 			<!-- Search filter start -->
-		<nav class="sidebar card py-2 mt-4">
-            <div class="filter-search-box px-3 pb-0 mt-3">
-                <div class="search-sidebar_header">
-                    <h4 class="ssh_heading">Search Filter</h4>
+            <nav class="sidebar card py-4 mt-4 ">
+                <div class="filter-search-box px-3 pb-0 text-center">
+                    <div class="search-sidebar_header mb-3">
+                        <h6 class="ssh_heading">Search Filter</h6>
+                    </div>
+					<hr />
                 </div>
-            </div>
-            <div style="clear: both;"/>
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="school" id="schoolCheck">
-                <label class="form-check-label" for="schoolCheck">Show Schools</label>
-            </div>
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="kinder_garden" id="kinderGardenCheck">
-                <label class="form-check-label" for="kinderGardenCheck">Show Kindergartens</label>
-            </div>
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="social_child_project" id="socialChildProjectCheck">
-                <label class="form-check-label" for="socialChildProjectCheck">Show Social Child Projects</label>
-            </div>
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="social_teenager_project" id="socialTeenagerProjectCheck">
-                <label class="form-check-label" for="socialTeenagerProjectCheck">Show Social Teenager Projects</label>
-            </div>
-            <button class="form-control fs-4 py-3 mt-3" onclick="fetchSelectedData()">Show Selected</button>
-			</nav>
+				
+				
+                <div class="form-check mb-4 ms-2 ">
+                    <input class="form-check-input mx-auto" style="font-size: 1.35rem;" type="checkbox" value="school" id="schoolCheck">
+                    <label class="form-check-label ms-2" for="schoolCheck">Show Schools</label>
+                </div>
+                <div class="form-check mb-4  ms-2 ">
+                    <input class="form-check-input mx-auto" type="checkbox"  style="font-size: 1.35rem;"  value="kinder_garden" id="kinderGardenCheck">
+                    <label class="form-check-label ms-2 " for="kinderGardenCheck">Show Kindergartens</label>
+                </div>
+                <div class="form-check mb-4 ms-2 ">
+                    <input class="form-check-input mx-auto" type="checkbox"  style="font-size: 1.35rem;" value="social_child_project" id="socialChildProjectCheck">
+                    <label class="form-check-label ms-2 " for="socialChildProjectCheck">Show Social Child Projects</label>
+                </div>
+                <div class="form-check mb-4  ms-2 ">
+                    <input class="form-check-input mx-auto" type="checkbox"  style="font-size: 1.35rem;" value="social_teenager_project" id="socialTeenagerProjectCheck">
+                    <label class="form-check-label ms-2 " for="socialTeenagerProjectCheck">Show Social Teenager Projects</label>
+                </div>
+                <button class="btn  w-75 fs-5 py-2 mt-3 mx-auto d-block" style="background: #090b3d;color: #fff;margin-bottom: 13px;" onclick="fetchSelectedData()">Show Selected</button>
+            </nav>
             <!-- Search Filter End -->
 			
 			<!-- routes filter start -->
 			<nav class="sidebar card py-2 mt-4">
-				<div class="filter-search-box px-3 pb-0 mt-3">
-                <div class="search-sidebar_header">
-                    <h4 class="ssh_heading">Search Routes</h4>
+                <div class="filter-search-box px-3 pb-0 text-center">
+                    <div class="search-sidebar_header mb-3">
+                        <h6 class="ssh_heading">Search Routes</h6>
+                    </div>
+					<hr />
                 </div>
-            </div>
-            
-            <div class="mb-3">										
-										<!-- From -->
-										<h6 class="pt-2">From</h6>
-                                        <select class="form-select fs-4 py-3" name="from_routes" id="from_routes">
-										{% if home_address_lable != ''%}
-										<option value="" >Null</option>
-										<option value="{{ home_address[1], home_address[2] }}" >Home Address</option>
-										{% endif %}
-											{% for facilities in all_facility %}
-												<option disabled >{{ facilities }}</option>
-												{% for facility in all_facility[facilities] %}
-													<option value="{{ facility.lat, facility.lng  }}"  >
-													{{ facility.bezeichnung }}, {{ facility.strasse }}, {{ facility.plz }},{{ facility.plz }}, {{ facility.ort }}</option>
-												{% endfor %}
-											{% endfor %}
-                                        </select>
-										<!-- End From -->
-										
-										<br>
-										<br>
-										<br>
-										<!-- To -->
-										<h6 class="pt-2">To</h6>
-										<select class="form-select fs-4 py-3" name="to_routes" id="to_routes">
-										{% if home_address_lable != ''%}
-										<option value="" >Null</option>
-											<option value="{{ home_address[1], home_address[2] }}" >Home Address</option>
-										{% endif %}
-											{% for facilities in all_facility %}
-												<option disabled >{{ facilities }}</option>
-												{% for facility in all_facility[facilities] %}
-													<option value="{{ facility.lat, facility.lng  }}"  >
-													{{ facility.bezeichnung }}, {{ facility.strasse }}, {{ facility.plz }},{{ facility.plz }}, {{ facility.ort }}</option>
-												{% endfor %}
-											{% endfor %}
-										</select>
-										<!-- End To -->
-                                    </div>
-									
-            <button class="form-control fs-4 py-3 mt-3" onclick="plotRoutes()">Show Selected</button>
-			</nav>
+   
+	
+    <div class="mb-3">										
+        <!-- From -->
+        <p>From</p>
+        <select class="form-select" name="from_routes" id="from_routes">
+		<option value="">Select Facility</option>
+            {% if home_address[0] != '' %}
+            <option value="{{ home_address[1], home_address[2] }}">Home Address</option>
+            {% endif %}
+            {% for facilities in all_facility %}
+                <option disabled>{{ facilities }}</option>
+                {% for facility in all_facility[facilities] %}
+                    <option value="{{ facility.lat, facility.lng }}">
+                        {{ facility.bezeichnung }}, {{ facility.strasse }}, {{ facility.plz }}, {{ facility.ort }}
+                    </option>
+                {% endfor %}
+            {% endfor %}
+        </select>
+        <!-- End From -->
+
+        <br>
+        <br>
+        <!-- To -->
+        <p>To</p>
+        <select class="form-select fs-4 py-3" name="to_routes" id="to_routes">
+		<option value="">Select Facility</option>
+            {% if home_address[0] != ''%}
+            <option value="{{ home_address[1], home_address[2] }}">Home Address</option>
+            {% endif %}
+            {% for facilities in all_facility %}
+                <option disabled>{{ facilities }}</option>
+                {% for facility in all_facility[facilities] %}
+                    <option value="{{ facility.lat, facility.lng }}">
+                        {{ facility.bezeichnung }}, {{ facility.strasse }}, {{ facility.plz }}, {{ facility.ort }}
+                    </option>
+                {% endfor %}
+            {% endfor %}
+		</select>
+        <!-- End To -->
+    </div>
+
+	<p id="error_message" class="text-danger text-sm fs-5"></p>
+	
+    <button class="btn  w-75 fs-5 py-2 mt-3 mx-auto d-block" style="background: #090b3d;color: #fff;margin-bottom: 13px;" onclick="plotRoutes()">Show Selected</button>
+	
+	<p class="py-2 mx-auto"><a class="btn_clear_route" style="cursor: pointer;text-decoration: underline;" onclick="clearRoutes()">Clear Routes</a></p>
+</nav>
 			<!-- routes Filter end -->
         
     </div>
@@ -203,7 +315,9 @@ color: var(--text-white);
 				<!-- end flash message for error -->
 							
 				<!-- message -->
-					<p class="text-info fs-5" id="message_text"></p>
+				
+					<div id="message_text"></div>
+				
 				<!-- end message -->
 							
 					<div id="map"></div>
@@ -225,6 +339,7 @@ color: var(--text-white);
 	 <script src="https://unpkg.com/leaflet-geosearch@latest/dist/bundle.min.js"></script>
 	 
 	 <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+	 <script src="https://ptma.github.io/Leaflet.Legend/src/leaflet.legend.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
@@ -237,6 +352,8 @@ color: var(--text-white);
 	
 	var favoriteFacilityId = {{ favorite_facility_id|safe }};
 	var favoriteFacilityCollection = "{{ favorite_facility_collection|safe }}";
+	var favorite_facility_data = {{ favorite_facility_data|safe }};
+		
 	
 	var home_address_lable = "{{ home_address[0]|safe }}"
 	var home_address_lat = "{{ home_address[1]|safe }}"
@@ -244,19 +361,43 @@ color: var(--text-white);
 	
 	// ini map
 	var map = L.map('map')
-	map.setView([0, 0], 20);
+	map.setView([50.833332, 12.916667], 15);
 	
 	L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-		//maxZoom: 13,
-		attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+		// maxZoom: 20,
+		//attribution: '&copy; By Darshan Dhanani'
 	}).addTo(map);
 	
+
+// Create legend control
+        var legend = L.control({ position: 'bottomright' });
+
+        legend.onAdd = function (map) {
+            var div = L.DomUtil.create('div', 'legend');
+            div.innerHTML += '<i style="background: red"></i> School<br>';
+            div.innerHTML += '<i style="background: green"></i> Kindergarten<br>';
+            div.innerHTML += '<i style="background: skyblue"></i> social child project<br>';
+            div.innerHTML += '<i style="background: blue"></i> social teenager projects<br><br>';
+			
+            div.innerHTML += "<img height='25' width='25' src='{{ url_for('static', filename='images/map icon/home.png') }}' /> Home <br><br>";
+			
+			div.innerHTML += "<img height='25' width='25' src='{{ url_for('static', filename='images/map icon/star.png') }}' /> Favorite <br>";
+				
+            return div;
+        };
+
+        legend.addTo(map);
+
+
 	
 	// search bar
-	const search = new GeoSearch.GeoSearchControl({
+	/*const search = new GeoSearch.GeoSearchControl({
 		provider: new GeoSearch.OpenStreetMapProvider(),
 		style: 'bar'
 	});
+	
+	 map.addControl(search); */
+
 
 	
 	// Ploting Home Address
@@ -265,7 +406,7 @@ color: var(--text-white);
 		{
 			let home_icon = L.icon({
                 iconUrl: "{{ url_for('static', filename='images/map icon/home.png') }}",
-                iconSize: [35, 40],
+                iconSize: [40, 40],
                 iconAnchor: [12, 40],
                 popupAnchor: [0, -40]
             });
@@ -278,14 +419,15 @@ color: var(--text-white);
 				});
 			
 		} else {
-			 document.getElementById("message_text").innerText = "* Please add your home address in the Profile section.";
+			 document.getElementById("message_text").innerHTML = "<p class='alert alert-info'  role='alert'>* Please add your home address in the Profile section.</p>";
 		}
 	}
 	
 	// pot home address data
 	plotHomeAddress()
 	
-
+	// plot Favorite Facility
+	
 	
 	// main task
 	var markers = [];
@@ -308,7 +450,7 @@ color: var(--text-white);
 			favoriteFacilityId = data.favorite_facility_id
 			favoriteFacilityCollection = data.favorite_facility_collection
 			data = data.data
-			console.log();
+			
 			// Clear existing markers
 				markers.forEach(marker => map.removeLayer(marker));
 				markers = [];
@@ -316,6 +458,7 @@ color: var(--text-white);
 			 // Add new markers for each type
             Object.keys(data).forEach(type => {
                 data[type].forEach(item => {
+				
                     addMarker(item, type);
                 });
             });
@@ -328,33 +471,25 @@ color: var(--text-white);
         
     }
 	
+	
 	// popup content
 	function createPopupContent(item, dataType) {
-     let popupContent = '<strong>' + (item.bezeichnung || 'N/A') + '</strong><br>' +
-        
-       
-'<div class="popup-table-container"><table class="popup-table">';
+    let popupContent = '<h6>' + (item.bezeichnung || '') + '</h6><br>' +
+        '<div class="popup-table-container" style="max-width: 800px; max-height: 200px; overflow-y: scroll;"><table class="popup-table" style="width: 100%; table-layout: fixed; overflow-wrap: break-word;">';
 
     if (dataType === SCHOOLS) {
         popupContent +=
-            
-  
-'<tr><th>Category</th><td>' + (item.art || 'N/A') + '</td></tr>' +
+            '<tr><th>Category</th><td>' + (item.art || 'N/A') + '</td></tr>' +
             '<tr><th>Location Type</th><td>' + (item.standorttyp || 'N/A') + '</td></tr>' +
             '<tr><th>Address</th><td>' + (item.strasse || 'N/A') + ', ' + (item.plz || 'N/A') + ' ' + (item.ort || 'N/A') + '</td></tr>' +
             '<tr><th>Phone</th><td>' + (item.telefon || 'N/A') + '</td></tr>' +
             '<tr><th>Fax</th><td>' + (item.fax || 'N/A') + '</td></tr>' +
             '<tr><th>Email</th><td>' + (item.email || 'N/A') + '</td></tr>' +
-            
-   
-'<tr><th>Website</th><td>' + (item.www ? '<a href="' + (item.www.startsWith('http://') || item.www.startsWith('https://') ? item.www : 'http://' + item.www) + '" target="_blank">' + item.www + '</a>' : 'N/A') + '</td></tr>' +
-
+            '<tr><th>Website</th><td>' + (item.www ? '<a href="' + (item.www.startsWith('http://') || item.www.startsWith('https://') ? item.www : 'http://' + item.www) + '" target="_blank">' + item.www + '</a>' : 'N/A') + '</td></tr>' +
             '<tr><th>Profile</th><td>' + (item.profile || 'N/A') + '</td></tr>' +
             '<tr><th>Short Name</th><td>' + (item.kurzbezeichnung || 'N/A') + '</td></tr>' +
             '<tr><th>Carrier</th><td>' + (item.traeger || 'N/A') + '</td></tr>' +
-            
-            
-'<tr><th>Carrier Type</th><td>' + (item.traegertyp || 'N/A') + '</td></tr>' +
+            '<tr><th>Carrier Type</th><td>' + (item.traegertyp || 'N/A') + '</td></tr>' +
             '<tr><th>Created on</th><td>' + (new Date(parseInt(item.creationdate)).toLocaleString() || 'N/A') + '</td></tr>' +
             '<tr><th>Edited on</th><td>' + (new Date(parseInt(item.editdate)).toLocaleString() || 'N/A') + '</td></tr>' +
             '<tr><th>Creator</th><td>' + (item.creator || 'N/A') + '</td></tr>' +
@@ -379,34 +514,64 @@ color: var(--text-white);
             '<tr><th>Carrier</th><td>' + (item.traeger || 'N/A') + '</td></tr>';
     } else if (dataType === SOCIAL_TEENAGER_PROJECTS) {
         popupContent +=
-           
-         
-'<tr><th>Category</th><td>Social Teenager Project</td></tr>' +
+            '<tr><th>Category</th><td>Social Teenager Project</td></tr>' +
             '<tr><th>Address</th><td>' + (item.strasse || 'N/A') + ', ' + (item.plz || 'N/A') + ' ' + (item.ort || 'N/A') + '</td></tr>' +
             '<tr><th>Phone</th><td>' + (item.telefon || 'N/A') + '</td></tr>' +
-            
-            
-'<tr><th>Services</th><td>' + (item.leistungen || 'N/A') + '</td></tr>' +
+            '<tr><th>Services</th><td>' + (item.leistungen || 'N/A') + '</td></tr>' +
             '<tr><th>Carrier</th><td>' + (item.traeger || 'N/A') + '</td></tr>';
     }
 
     popupContent += '</table></div>';
 
     popupContent += '<div style="margin-top: 10px;">' +
-    '<button class="btn-call" onclick="window.location.href=\'tel:' + (item.telefon || '') + '\'" ' + (!item.telefon ? 'disabled' : '') + '>Call</button>' +
-    '<button class="btn-call" onclick="window.location.href=\'mailto:' + (item.email || '') + '\'" ' + (!item.email ? 'disabled' : '') + '>Email</button>' +
-    '<button class="btn-call" onclick="window.open(\'' + (item.url ? (item.url.startsWith('http://') || item.url.startsWith('https://') ? item.url : 'http://' + item.url) : (item.www ? (item.www.startsWith('http://') || item.www.startsWith('https://') ? item.www : 'http://' + item.www) : '')) + '\', \'_blank\')" ' + 
-    (!item.url && !item.www ? 'disabled' : '') + '>Website</button>';
+        '<button class="btn btn-primary me-2 mb-2" style="background-color: #090b3d; color: #fff;" onclick="window.location.href=\'tel:' + (item.telefon || '') + '\'" ' + (!item.telefon ? 'disabled' : '') + '><i class="fas fa-phone-alt"></i> Call</button>' +
+        '<button class="btn btn-primary me-2 mb-2" style="background-color: #090b3d; color: #fff;" onclick="window.location.href=\'mailto:' + (item.email || '') + '\'" ' + (!item.email ? 'disabled' : '') + '><i class="fas fa-envelope"></i> Email</button>';
 
-if (favoriteFacilityId === item.id && favoriteFacilityId !== 0 && favoriteFacilityCollection !== '' && favoriteFacilityCollection === dataType) {
-    popupContent += '<button class="popup-button favorite-button" onclick="removeAsFavorite(' + item.id + ', \'' + dataType + '\')">Remove as Favorite</button>';
-} else {
-    popupContent += '<button class="popup-button favorite-button" onclick="markAsFavorite(' + item.id + ', \'' + dataType + '\')">Mark as Favorite</button>';
-}
+    if (favoriteFacilityId === item.id && favoriteFacilityId !== 0 && favoriteFacilityCollection !== '' && favoriteFacilityCollection === dataType) {
+        popupContent += '<button class="btn btn-warning favorite-button me-2 mb-2" style="background-color: yellow; color: black;" onclick="removeAsFavorite(' + item.id + ', \'' + dataType + '\')"><i class="fas fa-star"></i> Remove as Favorite</button>';
+    } else {
+        popupContent += '<button class="btn btn-warning favorite-button me-2 mb-2" style="background-color: yellow; color: black;" onclick="markAsFavorite(' + item.id + ', \'' + dataType + '\')"><i class="far fa-star"></i> Mark as Favorite</button>';
+    }
 
-popupContent += '</div>';
+    popupContent += '</div>';
 
     return popupContent;
+}
+
+
+function plotFavoriteFacility(){
+
+$.ajax({
+            url: `/fetch-favorite-facility`,
+            method: 'GET',
+            success: function(data) {
+
+				facility = data['favorite_facility_collection']
+				data = data['data']
+
+				favoriteIcon = L.icon({
+                iconUrl: "{{ url_for('static', filename='images/map icon/star.png') }}",
+                iconSize: [35, 35],
+                iconAnchor: [12, 40],
+                popupAnchor: [0, -40],
+				});
+			
+
+			favoriteFacilityMarker = L.marker([data['lat'], data['lng']], { icon: favoriteIcon })
+                .addTo(map)
+                .bindPopup(createPopupContent(data, facility));
+				
+				
+            },
+            error: function(err) {
+                alert("An error occurred while making facility marked as a favorite.");
+            }
+        });
+	
+	}
+
+if (favoriteFacilityId != 0 &&  favoriteFacilityCollection != ''){
+plotFavoriteFacility()
 }
 
 /**
@@ -417,9 +582,23 @@ function markAsFavorite(id, facility) {
             url: `/mark-as-favorite-facility/${id}/${facility}`,
             method: 'POST',
             success: function(data) {
-
+	
 				// reload the map
 				fetchSelectedData() 
+				
+				// remove existing favorite marker
+				if (favoriteFacilityMarker){
+																
+					map.removeLayer(favoriteFacilityMarker)
+					
+					// plot FavoriteFacility 
+					plotFavoriteFacility()
+					
+					// set new favoriteFacility
+					favoriteFacilityId = id;
+					favoriteFacilityCollection = facility;
+					
+				}
 				
             },
             error: function(err) {
@@ -439,8 +618,14 @@ function removeAsFavorite(id, facility) {
             method: 'POST',
             success: function(data) {
 
+				
 				// reload the map
 				fetchSelectedData() 
+				
+				// remove existing favorite marker
+				if (favoriteFacilityMarker){
+					map.removeLayer(favoriteFacilityMarker)
+				}
 				
             },
             error: function(err) {
@@ -459,47 +644,48 @@ function removeAsFavorite(id, facility) {
             switch(dataType) {
                 case SCHOOLS:
                     iconUrl = "{{ url_for('static', filename='images/map icon/school.png') }}";
-                   // popupText = 'I am a school.';
                     listItemText = 'School';
                     break;
                 case KINDERGARDEN:
                     iconUrl = "{{ url_for('static', filename='images/map icon/garden.png') }}";
-                   // popupText = 'I am a Garden.';
                     listItemText = 'Kindergarten';
                     break;
                 case SOCIAL_CHILD_PROJECTS:
                     iconUrl = "{{ url_for('static', filename='images/map icon/social child project.png') }}";
-                  //  popupText = 'I am a Garden.';
                     listItemText = 'Social Child Project';
                     break;
                 case SOCIAL_TEENAGER_PROJECTS:
                     iconUrl = "{{ url_for('static', filename='images/map icon/social teenager projects.png') }}";
-                   // popupText = 'I am a Garden.';
                     listItemText = 'Social Teenager Project';
                     break;
             }
 
+			
+			 let icon = L.icon({
+                iconUrl: iconUrl,
+                iconSize: [21, 34],
+                iconAnchor: [12, 40],
+                popupAnchor: [0, -40],
+            });
+			
 			// check if any Favorite Facility added
 			if (favoriteFacilityId != 0 &&  favoriteFacilityCollection != ''){
 			if (favoriteFacilityId === item.id && favoriteFacilityCollection === dataType) {
 					iconUrl = "{{ url_for('static', filename='images/map icon/star.png') }}";
-					}
-					}
 					
-            let icon = L.icon({
+					icon = L.icon({
                 iconUrl: iconUrl,
-                iconSize: [35, 40],
+                iconSize: [35, 35],
                 iconAnchor: [12, 40],
-                popupAnchor: [0, -40]
+                popupAnchor: [0, -40],
             });
-    
+						}
+					}
 
             let marker = L.marker([item.lat, item.lng], { icon: icon })
                 .addTo(map)
                 .bindPopup(createPopupContent(item, dataType))
-				.on('click', function() {
-					map.setView([item.lat, item.lng], 20);
-				});
+				;
             markers.push(marker);
         }
 	
@@ -519,7 +705,7 @@ function removeAsFavorite(id, facility) {
 			map.removeLayer(userCircle);
 		}	
 
-		userMarker = L.marker([lat, lng]).addTo(map).bindPopup("User live location");
+		userMarker = L.marker([lat, lng]).addTo(map).bindPopup("<p>User's live location</p>");
 		userCircle = L.circle([lat, lng], { radius: accuracy }).addTo(map);
 
 		map.fitBounds(userCircle.getBounds());
@@ -536,6 +722,7 @@ function removeAsFavorite(id, facility) {
 	
 	// select2
 	
+	var routingControls = []
 	// from routes
 	$(document).ready(function() {
 		$('#from_routes').select2();
@@ -545,32 +732,60 @@ function removeAsFavorite(id, facility) {
 	$(document).ready(function() {
 		$('#to_routes').select2();
 	});
+		
+		
+	// clear routes
+	function clearRoutes() {
+	if(routingControls){
 	
+			routingControls.forEach(element => {
+				map.removeControl(element);
+			});
+				// console.log(routingControls)
+				//routingControls = []
+				//console.log(routingControls)
+				
+				routingControls = []
+			}
+	}
+		
+	// plot and remove routes
 	function plotRoutes(){
 		from_data = document.getElementById("from_routes").value
 		to_data = document.getElementById("to_routes").value
-		
-		console.log(from_data);
-		
-		if(from_data == '' && to_data == ''){
-			map.removeControl(routingControl);
-			
+
+		// no routes selected then clear
+		if (from_data === '' || to_data === '') {
+
+			clearRoutes()
+
 			return;
 		}
 		
 		from_data = from_data.substring(1, from_data.length-1).split(",");
 		to_data = to_data.substring(1, to_data.length-1).split(",");
+	
+		// if from and to is the same
+		if(from_data[0] == to_data[0] && from_data[1] == to_data[1])
+		{
+			document.getElementById("error_message").innerText = "* The starting point and destination cannot be the same. Please select different locations for the 'From' and 'To' addresses.";
+			return;
+		}
+		
 		
 		// routes
-		var routingControl = L.Routing.control({
+		routingControl = L.Routing.control({
 		waypoints: [
 			L.latLng(Number(from_data[0]), Number(from_data[1])),
 			L.latLng(Number(to_data[0]), Number(to_data[1]))
 		],
 				routeWhileDragging: true,
+				
 			}).addTo(map);
+			
+		routingControls.push(routingControl);
+			
 		}
-		
-	
+
 	</script>
 {% endblock %}

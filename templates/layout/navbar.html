@@ -56,7 +56,7 @@
     </header>
 	
 	{% if session['logged_in'] %}
-	<div class="user-menu-toggler shadow-lg" style="display: none;">
+	<div class="user-menu-toggler shadow-lg" style="display: none;z-index: 10000">
         <ul>
             <li><a href="{{url_for('user_profile')}}">Profile</a></li>
             <li><a href="{{url_for('logout')}}">Logout</a></li>

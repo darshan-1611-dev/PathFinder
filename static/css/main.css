@@ -669,7 +669,7 @@ input[type="file"]::file-selector-button {
 
 /* ========== Footer CSS ========== */
 .footer {
-    background: url("/Assets/Images/Bg_img/bg_footer.png") no-repeat;
+   /* background: url("/Assets/Images/Bg_img/bg_footer.png") no-repeat;*/
     background-size: cover;
     background-color: var(--bg-dark);
     color: var(--text-white) !important;

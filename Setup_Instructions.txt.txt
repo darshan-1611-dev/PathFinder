@@ -1,0 +1,23 @@
+# Application Setup and Running Instructions
+
+This document provides instructions for setting up and running the application. No additional database setup is required.
+
+## Prerequisites
+
+Ensure you have Python installed on your system. You can download it from [Python's official website](https://www.python.org/).
+
+## Steps to Run the Application
+
+Follow the steps below to install the necessary dependencies and run the application.
+
+1. Install Dependencies
+
+   Open a terminal or command prompt and navigate to the directory where the application files are located. Run the following command to install the required Python packages:
+
+	pip install -r requirements.txt
+	
+2. Run the Application
+	
+	After installing the dependencies, run the main application file using the following command:
+	
+	python main.py

@@ -3,7 +3,7 @@ import bcrypt
 from flask_mail import Mail, Message
 import secrets
 from datetime import datetime, timedelta
-from flask import url_for, flash, render_template_string, session
+from flask import url_for, flash, render_template_string, session, redirect, jsonify
 from reset_password_email_template import reset_password_mail_template 
 from account_revoke_email_template import account_revoke_mail_template 
 import random
@@ -214,7 +214,7 @@ def update_user(form_data):
             'email': form_data[4],
             'password': form_data[5]
            }
-            
+    
     if len(form_data) > 6:
         home_address = json.loads(form_data[6])
         lat = home_address.get('y')
@@ -364,14 +364,27 @@ def fetch_favorite_facility():
     data = auth_user_data()
     
     if data.get("facility_id") and data.get("facility_collection"):
+    
+        favorite_facility_data = db[data["facility_collection"]].find_one({'id': data["facility_id"]}, {'_id': 0}) 
+        
         return [
             data["facility_id"],
-            data["facility_collection"]
+            data["facility_collection"],
+            favorite_facility_data
             ]
     
         
-    return [0, '']
+    return [0, '', []]
     
+    
+def fetch_favorite_facility_json():
+    data = auth_user_data()
+    
+    favorite_facility_data = db[data["facility_collection"]].find_one({'id': data["facility_id"]}, {'_id': 0})
+    
+    return jsonify({ 'data': favorite_facility_data, 'favorite_facility_collection':  data["facility_collection"]})
+     
+
 
 def fetch_user_home_address():
     data = auth_user_data()
@@ -382,3 +395,5 @@ def fetch_user_home_address():
         home_address.get("lat", ""),
         home_address.get("lng", "")
     ]
+
+    
