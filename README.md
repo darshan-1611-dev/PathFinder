@@ -1,6 +1,5 @@
-<a href="https://github.com/darshan-1611-dev/PathFinder">
-	<img src="static/images/logo-white-svg.svg" alt="logo" width="150" height="150"/>
-</a> 
+
+<img src="static/images/logo-white-svg.svg" alt="logo" width="150" height="150"/>
 
 # Path Finder - Interactive Map Application
 
