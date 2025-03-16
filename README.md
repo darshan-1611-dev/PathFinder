@@ -50,18 +50,14 @@ python main.py
 ## Screenshots
 
 ### Map Interface
-
-Map default page
 ![Map Interface](static/siteimages/map-default-page.png)
 
-Map page with facilty detail information popup
+### Map page with facilty detail information popup
 ![Map Interface](static/siteimages/map-with-popup.png)
 
-Map page with routes
+### Map page with routes
 ![Map Interface](static/siteimages/map-with-routes.png)
 
-### User Profile
-![User Profile](static/site images/user-profile-section.png)
 
 ## Endpoints Documentation
 - `/login`: User login (GET, POST)
