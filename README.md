@@ -1,7 +1,7 @@
-
-<img src="static/images/logo-white-svg.svg" alt="logo" width="150" height="150"/>
+![Path Finder Logo](static/images/logo-white-svg.svg)
 
 # Path Finder - Interactive Map Application
+
 
 ## Introduction
 Path Finder is a web application designed to enhance access to information about various facilities in Chemnitz. It leverages the Chemnitz Open Data Portal to provide users with interactive map functionalities, including live location visibility, route planning, and facility categorization.
