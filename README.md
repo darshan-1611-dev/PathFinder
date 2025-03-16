@@ -1,6 +1,10 @@
-# Path Finder - Interactive Map Application
+<h1 align="center">
+  <a href="https://github.com/darshan-1611-dev/PathFinder">
+    <img src="static/images/logo-white-svg.svg" alt="Logo" width="125" height="125">
+  </a>
+</h1>
 
-![Path Finder Logo](static/images/logo-white-svg.svg)
+# Path Finder - Interactive Map Application
 
 ## Introduction
 Path Finder is a web application designed to enhance access to information about various facilities in Chemnitz. It leverages the Chemnitz Open Data Portal to provide users with interactive map functionalities, including live location visibility, route planning, and facility categorization.
@@ -51,12 +55,12 @@ python main.py
 ## Screenshots
 
 ### Login Page
-![Login Page](static/site images/login.png)
+![Login Page](static/siteimages/login.png)
 
 ### Map Interface
-![Map Interface](static/site images/map default page.png)
-![Map Interface](static/site images/map with popup.png)
-![Map Interface](static/site images/map with routes.png)
+![Map Interface](static/siteimages/map-default-page.png)
+![Map Interface](static/siteimages/map-with-popup.png)
+![Map Interface](static/siteimages/map-with-routes.png)
 
 ### User Profile
 ![User Profile](static/site images/user profile section.png)
