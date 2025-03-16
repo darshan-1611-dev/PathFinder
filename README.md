@@ -49,9 +49,6 @@ python main.py
 
 ## Screenshots
 
-### Login Page
-![Login Page](static/siteimages/login.png)
-
 ### Map Interface
 ![Map Interface](static/siteimages/map-default-page.png)
 ![Map Interface](static/siteimages/map-with-popup.png)
