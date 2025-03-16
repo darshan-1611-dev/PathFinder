@@ -2,8 +2,6 @@
 
 # Path Finder - Interactive Map Application
 
-
-## Introduction
 Path Finder is a web application designed to enhance access to information about various facilities in Chemnitz. It leverages the Chemnitz Open Data Portal to provide users with interactive map functionalities, including live location visibility, route planning, and facility categorization.
 
 ## Technologies Used
@@ -60,7 +58,7 @@ python main.py
 ![Map Interface](static/siteimages/map-with-routes.png)
 
 ### User Profile
-![User Profile](static/site images/user profile section.png)
+![User Profile](static/site images/user-profile-section.png)
 
 ## Endpoints Documentation
 - `/login`: User login (GET, POST)
